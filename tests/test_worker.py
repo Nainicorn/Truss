@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from apps.worker import execute_run
+from server.worker import execute_run
 from schemas import TaskSpec, CandidateOutput, generate_id
 
 

@@ -65,7 +65,7 @@ def main() -> int:
         # Enqueue job
         redis_conn = redis.from_url(settings.redis_url)
         queue = Queue(settings.rq_queue_name, connection=redis_conn)
-        job = queue.enqueue("apps.worker.execute_run", new_run_id, job_id=new_run_id)
+        job = queue.enqueue("server.worker.execute_run", new_run_id, job_id=new_run_id)
 
         logger.info("replay_job_enqueued", new_run_id=new_run_id, job_id=job.id)
 

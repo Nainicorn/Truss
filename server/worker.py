@@ -1,7 +1,5 @@
 """RQ worker for executing evaluation runs."""
 
-import sys
-
 from rq import Worker, Queue
 import redis
 import structlog

@@ -5,7 +5,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from fastapi.testclient import TestClient
 import pytest
 
-from apps.api import app, _hash_payload
+from server.main import app
+from server.dependencies import hash_payload
 from schemas import TaskSpec, CandidateOutput
 
 
@@ -74,8 +75,8 @@ class TestIdempotencyHashing:
 
     def test_idempotency_hash_consistency(self, task_spec, candidate_output):
         """Hash of same payload is consistent."""
-        hash1 = _hash_payload(task_spec, candidate_output)
-        hash2 = _hash_payload(task_spec, candidate_output)
+        hash1 = hash_payload(task_spec, candidate_output)
+        hash2 = hash_payload(task_spec, candidate_output)
 
         # Same payload → same hash
         assert hash1 == hash2
@@ -84,11 +85,11 @@ class TestIdempotencyHashing:
 
     def test_idempotency_hash_differs_on_change(self, task_spec, candidate_output):
         """Hash differs when payload changes."""
-        hash1 = _hash_payload(task_spec, candidate_output)
+        hash1 = hash_payload(task_spec, candidate_output)
 
         # Modify content
         candidate_output.content = "Different content"
-        hash2 = _hash_payload(task_spec, candidate_output)
+        hash2 = hash_payload(task_spec, candidate_output)
 
         # Different payload → different hash
         assert hash1 != hash2

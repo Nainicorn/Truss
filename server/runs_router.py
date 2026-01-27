@@ -1,98 +1,24 @@
-"""FastAPI service for Polaris evaluation runs."""
+"""FastAPI router for evaluation runs API endpoints."""
 
-import hashlib
-from contextlib import asynccontextmanager
-
-from fastapi import FastAPI, Depends, HTTPException, Header
-from psycopg import AsyncConnection
 import redis.asyncio as redis
+from fastapi import APIRouter, Depends, HTTPException, Header
+from psycopg import AsyncConnection
 from rq import Queue
 import structlog
 
 from config import settings
-from db import init_db_pool, close_db_pool, get_db, RunsRepository
+from db import get_db, RunsRepository
 from schemas import TaskSpec, CandidateOutput, generate_id
-from utils import init_redis, get_redis, close_redis, IdempotencyManager, RateLimiter
+from utils import get_redis, IdempotencyManager
+from .dependencies import check_rate_limit, hash_payload
+from .report_generator import generate_report_md
 
 logger = structlog.get_logger()
 
-
-# Lifespan: manage connections
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Initialize and cleanup resources."""
-    await init_db_pool(settings.database_url)
-    await init_redis(settings.redis_url)
-    logger.info("services_initialized", db_url=settings.database_url, redis_url=settings.redis_url)
-    yield
-    await close_db_pool()
-    await close_redis()
-    logger.info("services_closed")
+router = APIRouter(prefix="/api", tags=["runs"])
 
 
-app = FastAPI(
-    title="Polaris Evaluation API",
-    version="0.3.0",
-    lifespan=lifespan,
-)
-
-
-# Dependency: API key validation
-async def validate_api_key(x_api_key: str = Header(..., alias="X-API-Key")) -> str:
-    """Validate API key and return it.
-
-    Args:
-        x_api_key: API key from X-API-Key header
-
-    Returns:
-        API key
-
-    Raises:
-        HTTPException: 403 if invalid API key
-    """
-    if x_api_key not in settings.api_keys:
-        raise HTTPException(status_code=403, detail="Invalid API key")
-    return x_api_key
-
-
-# Dependency: rate limiting
-async def check_rate_limit(
-    api_key: str = Depends(validate_api_key),
-) -> str:
-    """Rate limit: 10 req/min per API key.
-
-    Args:
-        api_key: Validated API key
-
-    Returns:
-        API key if allowed
-
-    Raises:
-        HTTPException: 429 if rate limit exceeded
-    """
-    limiter = RateLimiter(get_redis())
-    allowed = await limiter.check(api_key, limit=settings.rate_limit_per_minute, window=60)
-    if not allowed:
-        logger.warning("rate_limit_exceeded", api_key=api_key)
-        raise HTTPException(status_code=429, detail="Rate limit exceeded")
-    return api_key
-
-
-def _hash_payload(task_spec: TaskSpec, candidate: CandidateOutput) -> str:
-    """Hash payload for idempotency comparison.
-
-    Args:
-        task_spec: Task specification
-        candidate: Candidate output
-
-    Returns:
-        SHA256 hash of concatenated model dumps
-    """
-    content = task_spec.model_dump_json() + candidate.model_dump_json()
-    return hashlib.sha256(content.encode()).hexdigest()
-
-
-@app.post("/api/runs", status_code=202)
+@router.post("/runs", status_code=202)
 async def create_run(
     task_spec: TaskSpec,
     candidate_output: CandidateOutput,
@@ -133,7 +59,7 @@ async def create_run(
     Raises:
         HTTPException: 400 if validation fails, 429 if rate limited
     """
-    payload_hash = _hash_payload(task_spec, candidate_output)
+    payload_hash = hash_payload(task_spec, candidate_output)
 
     # Check idempotency (DB-first)
     if idempotency_key:
@@ -162,7 +88,7 @@ async def create_run(
     try:
         redis_conn = redis.from_url(settings.redis_url)
         queue = Queue(settings.rq_queue_name, connection=redis_conn)
-        job = queue.enqueue("apps.worker.execute_run", run_id, job_id=run_id)
+        job = queue.enqueue("server.worker.execute_run", run_id, job_id=run_id)
         logger.info("run_queued", run_id=run_id, job_id=job.id)
     except Exception as e:
         logger.exception("queue_failed", run_id=run_id, error=str(e))
@@ -182,7 +108,7 @@ async def create_run(
     }
 
 
-@app.get("/api/runs/{run_id}")
+@router.get("/runs/{run_id}")
 async def get_run_status(
     run_id: str,
     conn: AsyncConnection = Depends(get_db),
@@ -229,7 +155,7 @@ async def get_run_status(
     return summary
 
 
-@app.get("/api/runs/{run_id}/record")
+@router.get("/runs/{run_id}/record")
 async def get_run_record(
     run_id: str,
     conn: AsyncConnection = Depends(get_db),
@@ -266,7 +192,7 @@ async def get_run_record(
     return run["run_record"]
 
 
-@app.get("/api/runs/{run_id}/trace")
+@router.get("/runs/{run_id}/trace")
 async def get_audit_trace(
     run_id: str,
     conn: AsyncConnection = Depends(get_db),
@@ -303,17 +229,90 @@ async def get_audit_trace(
     return run["run_record"]["audit_trace"]
 
 
-@app.get("/health")
-async def health_check() -> dict:
-    """Health check endpoint.
+@router.get("/runs")
+async def list_runs(
+    limit: int = 50,
+    offset: int = 0,
+    status: str | None = None,
+    conn: AsyncConnection = Depends(get_db),
+) -> dict:
+    """List runs with pagination.
+
+    GET /api/runs?limit=50&offset=0&status=COMPLETED
+
+    Args:
+        limit: Max results per page (default 50, max 100)
+        offset: Pagination offset (default 0)
+        status: Optional status filter (QUEUED, RUNNING, COMPLETED, FAILED)
+        conn: Database connection
 
     Returns:
-        dict with status
+        dict with runs list, total count, pagination metadata
+
+    Raises:
+        HTTPException: 400 if invalid parameters
     """
-    return {"status": "ok"}
+    limit = min(limit, 100)  # Cap at 100
+    if limit < 1:
+        raise HTTPException(status_code=400, detail="limit must be >= 1")
+    if offset < 0:
+        raise HTTPException(status_code=400, detail="offset must be >= 0")
+
+    runs = await RunsRepository.list_runs(conn, limit, offset, status)
+    total = await RunsRepository.count_runs(conn, status)
+
+    logger.info(
+        "runs_listed",
+        limit=limit,
+        offset=offset,
+        status=status,
+        count=len(runs),
+        total=total,
+    )
+
+    return {
+        "runs": runs,
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+    }
 
 
-if __name__ == "__main__":
-    import uvicorn
+@router.get("/runs/{run_id}/report.md")
+async def get_report_md(
+    run_id: str,
+    conn: AsyncConnection = Depends(get_db),
+):
+    """Generate Markdown report for completed run.
 
-    uvicorn.run(app, host=settings.api_host, port=settings.api_port)
+    GET /api/runs/{run_id}/report.md
+
+    Returns:
+        Plain text Markdown file with Content-Disposition header for download
+
+    Raises:
+        HTTPException: 404 if run not found, 202 if incomplete
+    """
+    from fastapi.responses import Response
+
+    run = await RunsRepository.get_run(conn, run_id)
+    if not run:
+        logger.warning("run_not_found_for_report", run_id=run_id)
+        raise HTTPException(status_code=404, detail="Run not found")
+
+    if not run["run_record"]:
+        logger.info("run_incomplete_for_report", run_id=run_id, status=run["status"])
+        raise HTTPException(
+            status_code=202,
+            detail=f"Run not yet completed (status: {run['status']})",
+        )
+
+    markdown = generate_report_md(run["run_record"])
+
+    return Response(
+        content=markdown,
+        media_type="text/markdown; charset=utf-8",
+        headers={
+            "Content-Disposition": f"attachment; filename=polaris-run-{run_id}.md"
+        },
+    )
