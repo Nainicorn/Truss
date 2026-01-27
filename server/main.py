@@ -8,7 +8,7 @@ import structlog
 
 from config import settings
 from db import init_db_pool, close_db_pool
-from utils import init_redis, close_redis
+from .services.redis import init_redis, close_redis
 from .runs_router import router as runs_router
 from .ui_router import router as ui_router
 

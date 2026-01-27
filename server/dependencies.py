@@ -7,7 +7,8 @@ import structlog
 
 from config import settings
 from schemas import TaskSpec, CandidateOutput
-from utils import get_redis, RateLimiter
+from .services.redis import get_redis
+from .middleware.rate_limit import RateLimiter
 
 logger = structlog.get_logger()
 

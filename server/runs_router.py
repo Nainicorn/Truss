@@ -9,7 +9,8 @@ import structlog
 from config import settings
 from db import get_db, RunsRepository
 from schemas import TaskSpec, CandidateOutput, generate_id
-from utils import get_redis, IdempotencyManager
+from .services.redis import get_redis
+from .middleware.idempotency import IdempotencyManager
 from .dependencies import check_rate_limit, hash_payload
 from .report_generator import generate_report_md
 
