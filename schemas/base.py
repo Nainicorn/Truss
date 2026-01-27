@@ -11,7 +11,7 @@ class BaseSchema(BaseModel):
     """Base Pydantic v2 model with strict validation."""
 
     model_config = ConfigDict(
-        strict=True,
+        strict=False,
         frozen=False,
         extra="forbid",
         use_enum_values=False,

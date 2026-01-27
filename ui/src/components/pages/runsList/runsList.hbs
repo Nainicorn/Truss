@@ -1,0 +1,162 @@
+<div class="__runsList">
+  <div class="__runsList-header">
+    <h1>Evaluation Runs</h1>
+    <button class="btn btn-primary btn-sm" id="btn-refresh">
+      🔄 Refresh
+    </button>
+  </div>
+
+  {{#if loading}}
+    <div class="loading">
+      <span class="spinner"></span>
+      <span>Loading runs...</span>
+    </div>
+  {{else if error}}
+    <div class="error">
+      <strong>Error:</strong> {{error}}
+    </div>
+  {{else}}
+    <!-- Filters Section -->
+    <div class="__runsList-filters">
+      <div class="__runsList-filter-group">
+        <label for="filter-min-id">Filter by Min ID:</label>
+        <input
+          type="text"
+          id="filter-min-id"
+          class="__runsList-filter-input"
+          placeholder="e.g., run_abc"
+          value="{{filterMinId}}"
+        />
+      </div>
+
+      <div class="__runsList-filter-group">
+        <label for="filter-status">Status:</label>
+        <select id="filter-status" class="__runsList-filter-select">
+          <option value="">All Statuses</option>
+          <option value="QUEUED" {{#if statusFilter}}{{#eq statusFilter "QUEUED"}}selected{{/eq}}{{/if}}>QUEUED</option>
+          <option value="RUNNING" {{#if statusFilter}}{{#eq statusFilter "RUNNING"}}selected{{/eq}}{{/if}}>RUNNING</option>
+          <option value="COMPLETED" {{#if statusFilter}}{{#eq statusFilter "COMPLETED"}}selected{{/eq}}{{/if}}>COMPLETED</option>
+          <option value="FAILED" {{#if statusFilter}}{{#eq statusFilter "FAILED"}}selected{{/eq}}{{/if}}>FAILED</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Evolution Summary (Collapsible) -->
+    <div class="__runsList-summary">
+      <button class="__runsList-summary-toggle" id="btn-toggle-summary">
+        <span class="__runsList-summary-icon">▶</span>
+        <strong>Evolution Summary</strong>
+      </button>
+
+      <div class="__runsList-summary-content" id="summary-content" style="display: none;">
+        <div class="__runsList-summary-grid">
+          <div class="__runsList-summary-item">
+            <div class="__runsList-summary-label">Total Runs</div>
+            <div class="__runsList-summary-value">{{total}}</div>
+          </div>
+
+          <div class="__runsList-summary-item">
+            <div class="__runsList-summary-label">Pass Rate</div>
+            <div class="__runsList-summary-value">{{passRate}}%</div>
+          </div>
+
+          {{#if decisionBreakdown}}
+            <div class="__runsList-summary-item">
+              <div class="__runsList-summary-label">ACCEPT</div>
+              <div class="__runsList-summary-value">{{decisionBreakdown.ACCEPT}}</div>
+            </div>
+
+            <div class="__runsList-summary-item">
+              <div class="__runsList-summary-label">REVISE</div>
+              <div class="__runsList-summary-value">{{decisionBreakdown.REVISE}}</div>
+            </div>
+
+            <div class="__runsList-summary-item">
+              <div class="__runsList-summary-label">CONSTRAIN</div>
+              <div class="__runsList-summary-value">{{decisionBreakdown.CONSTRAIN}}</div>
+            </div>
+
+            <div class="__runsList-summary-item">
+              <div class="__runsList-summary-label">ESCALATE</div>
+              <div class="__runsList-summary-value">{{decisionBreakdown.ESCALATE}}</div>
+            </div>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+
+    <!-- Runs Table -->
+    {{#if runs.length}}
+      <div class="__runsList-table-container">
+        <table class="__runsList-table">
+          <thead>
+            <tr>
+              <th>Run ID</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Updated</th>
+              <th>Decision</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each runs}}
+              <tr class="__runsList-row" data-run-id="{{this.run_id}}">
+                <td class="__runsList-run-id">
+                  <code>{{this.run_id}}</code>
+                </td>
+                <td>
+                  <span class="badge {{statusBadgeClass this.status}}">
+                    {{this.status}}
+                  </span>
+                </td>
+                <td>
+                  <small>{{formatDate this.created_at}}</small>
+                </td>
+                <td>
+                  <small>{{formatDate this.updated_at}}</small>
+                </td>
+                <td>
+                  {{#if this.run_record.decision}}
+                    <span class="badge {{decisionBadgeClass this.run_record.decision.verdict}}">
+                      {{this.run_record.decision.verdict}}
+                    </span>
+                  {{else}}
+                    <span class="badge badge-gray">Pending</span>
+                  {{/if}}
+                </td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="__runsList-pagination">
+        <button
+          class="btn btn-secondary btn-sm"
+          id="btn-prev"
+          {{#if isPreviousDisabled}}disabled{{/if}}
+        >
+          ← Previous
+        </button>
+
+        <span class="__runsList-page-info">
+          Page {{currentPage}} of {{totalPages}}
+          (Showing {{runs.length}} of {{total}} runs)
+        </span>
+
+        <button
+          class="btn btn-secondary btn-sm"
+          id="btn-next"
+          {{#if isNextDisabled}}disabled{{/if}}
+        >
+          Next →
+        </button>
+      </div>
+    {{else}}
+      <div class="error" style="text-align: center;">
+        <p>No runs found</p>
+      </div>
+    {{/if}}
+  {{/if}}
+</div>

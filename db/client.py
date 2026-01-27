@@ -1,7 +1,5 @@
 """PostgreSQL connection pools and dependency injection."""
 
-from contextlib import asynccontextmanager
-
 from psycopg_pool import AsyncConnectionPool
 import psycopg
 
@@ -29,7 +27,6 @@ async def close_db_pool() -> None:
         _async_pool = None
 
 
-@asynccontextmanager
 async def get_db():
     """Async dependency injection for FastAPI endpoints.
 

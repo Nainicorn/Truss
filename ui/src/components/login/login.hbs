@@ -1,0 +1,40 @@
+<div class="__login">
+  <div class="__login-card">
+    <div class="__login-header">
+      <div class="__login-logo">⚡</div>
+      <h1>Polaris</h1>
+      <p>AI Evaluation System</p>
+    </div>
+
+    <form class="__login-form" id="login-form">
+      {{#if error}}
+        <div class="error">{{error}}</div>
+      {{/if}}
+
+      <div class="__login-field">
+        <label for="email">Email Address</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="you@example.com"
+          required
+          {{#if loading}}disabled{{/if}}
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary __login-submit" {{#if loading}}disabled{{/if}}>
+        {{#if loading}}
+          <span class="spinner"></span>
+          Logging in...
+        {{else}}
+          Sign In
+        {{/if}}
+      </button>
+    </form>
+
+    <div class="__login-footer">
+      <p>Demo account • No password required</p>
+    </div>
+  </div>
+</div>

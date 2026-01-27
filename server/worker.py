@@ -63,7 +63,7 @@ def execute_run(run_id: str) -> str:
         )
 
         # Store run_record and set status COMPLETED
-        RunsRepository.update_completed(conn, run_id, run_record.model_dump())
+        RunsRepository.update_completed(conn, run_id, run_record.model_dump(mode='json'))
         logger.info("run_completed", run_id=run_id, verdict=run_record.decision.verdict)
 
         return run_id

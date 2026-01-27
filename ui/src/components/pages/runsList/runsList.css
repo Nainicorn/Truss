@@ -1,0 +1,297 @@
+.__runsList {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.__runsList-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-16);
+}
+
+.__runsList-header h1 {
+  margin: 0;
+}
+
+/* Filters */
+.__runsList-filters {
+  display: flex;
+  gap: var(--spacing-16);
+  margin-bottom: var(--spacing-16);
+  padding: var(--spacing-12);
+  background-color: var(--secondary-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius-lg);
+}
+
+.__runsList-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  flex: 1;
+  min-width: 200px;
+}
+
+.__runsList-filter-group label {
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+}
+
+.__runsList-filter-input,
+.__runsList-filter-select {
+  padding: var(--spacing-8) var(--spacing-10);
+  background-color: var(--tertiary-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius);
+  color: var(--text-primary);
+  font-size: var(--font-size-base);
+  transition: all var(--transition-base);
+}
+
+.__runsList-filter-input:focus,
+.__runsList-filter-select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Evolution Summary */
+.__runsList-summary {
+  margin-bottom: var(--spacing-16);
+  background-color: var(--secondary-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+}
+
+.__runsList-summary-toggle {
+  width: 100%;
+  padding: var(--spacing-12);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  transition: background-color var(--transition-base);
+}
+
+.__runsList-summary-toggle:hover {
+  background-color: var(--tertiary-bg);
+}
+
+.__runsList-summary-icon {
+  display: inline-block;
+  transition: transform var(--transition-base);
+  font-size: 12px;
+}
+
+.__runsList-summary-icon.rotated {
+  transform: rotate(90deg);
+}
+
+.__runsList-summary-content {
+  padding: var(--spacing-12);
+}
+
+.__runsList-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--spacing-12);
+}
+
+.__runsList-summary-item {
+  padding: var(--spacing-10);
+  background-color: var(--tertiary-bg);
+  border-radius: var(--border-radius);
+  text-align: center;
+  border: 1px solid var(--border);
+}
+
+.__runsList-summary-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-4);
+}
+
+.__runsList-summary-value {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--accent);
+}
+
+/* Table Container */
+.__runsList-table-container {
+  overflow-x: auto;
+  margin-bottom: var(--spacing-16);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border);
+}
+
+.__runsList-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--secondary-bg);
+}
+
+.__runsList-table thead {
+  background-color: var(--tertiary-bg);
+  border-bottom: 2px solid var(--border);
+}
+
+.__runsList-table th {
+  padding: var(--spacing-12) var(--spacing-10);
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.__runsList-table td {
+  padding: var(--spacing-10);
+  border-top: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.__runsList-table tbody tr {
+  transition: background-color var(--transition-base);
+  cursor: pointer;
+}
+
+.__runsList-table tbody tr:hover {
+  background-color: var(--tertiary-bg);
+}
+
+.__runsList-table tbody tr:nth-child(even) {
+  background-color: rgba(37, 37, 37, 0.3);
+}
+
+.__runsList-run-id {
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 12px;
+}
+
+.__runsList-run-id code {
+  background: none;
+  padding: 0;
+  color: var(--accent);
+}
+
+/* Status and Decision Badges */
+.badge-queued {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: var(--warning);
+}
+
+.badge-running {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: var(--info);
+}
+
+.badge-completed {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: var(--success);
+}
+
+.badge-failed {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+}
+
+.badge-accept {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: var(--success);
+}
+
+.badge-revise {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: var(--warning);
+}
+
+.badge-constrain {
+  background-color: rgba(99, 102, 241, 0.15);
+  color: var(--accent);
+}
+
+.badge-escalate {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+}
+
+/* Pagination */
+.__runsList-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-16);
+  padding: var(--spacing-12);
+  background-color: var(--secondary-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius-lg);
+}
+
+.__runsList-page-info {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  text-align: center;
+  flex: 1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .__runsList-header {
+    flex-direction: column;
+    gap: var(--spacing-12);
+  }
+
+  .__runsList-filters {
+    flex-direction: column;
+    gap: var(--spacing-12);
+  }
+
+  .__runsList-filter-group {
+    min-width: auto;
+  }
+
+  .__runsList-pagination {
+    flex-direction: column;
+    gap: var(--spacing-12);
+  }
+
+  .__runsList-page-info {
+    width: 100%;
+  }
+
+  .__runsList-table th,
+  .__runsList-table td {
+    padding: var(--spacing-8);
+    font-size: var(--font-size-sm);
+  }
+
+  .__runsList-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .__runsList-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .__runsList-table {
+    font-size: var(--font-size-sm);
+  }
+
+  .__runsList-run-id code {
+    display: block;
+    word-break: break-all;
+  }
+}

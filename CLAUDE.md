@@ -282,8 +282,7 @@ No “pure reflection” loops.
 please reference the project named "punk-app" in the /Downloads folder on my computer. This has a great folder, project, and code structure to follow for this project especially for the UI and parts of the server or backend
 
 ## Design Suggestion
-Reference the project portfolio-design skill in the /Downloads folder and use that when youre building the frontend. this is a very professional project the frontend should embody that. I want the scheme to be dark mode or black with white accents logos text etc.
-
+This is a very professional project the frontend should embody that. I want the scheme to be dark mode or black with white accents logos text etc.
 
 ---
 

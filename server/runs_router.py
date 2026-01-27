@@ -1,6 +1,7 @@
 """FastAPI router for evaluation runs API endpoints."""
 
-import redis.asyncio as redis
+import redis
+import redis.asyncio as redis_async
 from fastapi import APIRouter, Depends, HTTPException, Header
 from psycopg import AsyncConnection
 from rq import Queue
@@ -79,8 +80,8 @@ async def create_run(
     await RunsRepository.create_run(
         conn,
         run_id,
-        task_spec.model_dump(),
-        candidate_output.model_dump(),
+        task_spec.model_dump(mode='json'),
+        candidate_output.model_dump(mode='json'),
         idempotency_key=idempotency_key,
         payload_hash=payload_hash,
     )

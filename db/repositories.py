@@ -63,28 +63,29 @@ class RunsRepository:
             Dict with keys: run_id, status, created_at, updated_at, task_spec,
             candidate_output, run_record, error, replay_of
         """
-        row = await conn.fetchrow(
+        cursor = await conn.execute(
             """
             SELECT run_id, status, created_at, updated_at, task_spec,
                    candidate_output, run_record, error, replay_of
             FROM runs WHERE run_id = %s
             """,
-            run_id,
+            (run_id,),
         )
+        row = await cursor.fetchone()
 
         if not row:
             return None
 
         return {
-            "run_id": row["run_id"],
-            "status": row["status"],
-            "created_at": row["created_at"],
-            "updated_at": row["updated_at"],
-            "task_spec": row["task_spec"] if isinstance(row["task_spec"], dict) else json.loads(row["task_spec"]),
-            "candidate_output": row["candidate_output"] if isinstance(row["candidate_output"], dict) else json.loads(row["candidate_output"]),
-            "run_record": row["run_record"] if isinstance(row["run_record"], dict) else (json.loads(row["run_record"]) if row["run_record"] else None),
-            "error": row["error"],
-            "replay_of": row["replay_of"],
+            "run_id": row[0],
+            "status": row[1],
+            "created_at": row[2],
+            "updated_at": row[3],
+            "task_spec": row[4] if isinstance(row[4], dict) else json.loads(row[4]),
+            "candidate_output": row[5] if isinstance(row[5], dict) else json.loads(row[5]),
+            "run_record": row[6] if isinstance(row[6], dict) else (json.loads(row[6]) if row[6] else None),
+            "error": row[7],
+            "replay_of": row[8],
         }
 
     @staticmethod
@@ -98,15 +99,16 @@ class RunsRepository:
         Returns:
             RunRecord instance or None if not found or not completed
         """
-        row = await conn.fetchrow(
+        cursor = await conn.execute(
             "SELECT run_record FROM runs WHERE run_id = %s",
-            run_id,
+            (run_id,),
         )
+        row = await cursor.fetchone()
 
-        if not row or not row["run_record"]:
+        if not row or not row[0]:
             return None
 
-        record_data = row["run_record"] if isinstance(row["run_record"], dict) else json.loads(row["run_record"])
+        record_data = row[0] if isinstance(row[0], dict) else json.loads(row[0])
         return RunRecord.model_validate(record_data)
 
     @staticmethod
@@ -125,15 +127,15 @@ class RunsRepository:
         Returns:
             Existing run_id if found, None otherwise
         """
-        row = await conn.fetchrow(
+        cursor = await conn.execute(
             """
             SELECT run_id FROM runs
             WHERE idempotency_key = %s AND payload_hash = %s
             """,
-            idempotency_key,
-            payload_hash,
+            (idempotency_key, payload_hash),
         )
-        return row["run_id"] if row else None
+        row = await cursor.fetchone()
+        return row[0] if row else None
 
     @staticmethod
     async def list_runs(
@@ -153,7 +155,7 @@ class RunsRepository:
         Returns:
             List of run dicts
         """
-        query = "SELECT run_id, status, created_at, updated_at FROM runs"
+        query = "SELECT run_id, status, created_at, updated_at, task_spec, run_record FROM runs"
         params = []
 
         if status:
@@ -163,8 +165,44 @@ class RunsRepository:
         query += " ORDER BY created_at DESC LIMIT %s OFFSET %s"
         params.extend([limit, offset])
 
-        rows = await conn.fetchall(query, params)
-        return [dict(row) for row in rows]
+        cursor = await conn.execute(query, params)
+        rows = await cursor.fetchall()
+        return [
+            {
+                "run_id": row[0],
+                "status": row[1],
+                "created_at": row[2],
+                "updated_at": row[3],
+                "task_spec": row[4] if isinstance(row[4], dict) else json.loads(row[4]) if row[4] else None,
+                "run_record": row[5] if isinstance(row[5], dict) else (json.loads(row[5]) if row[5] else None),
+            }
+            for row in rows
+        ]
+
+    @staticmethod
+    async def count_runs(
+        conn: AsyncConnection,
+        status: str | None = None,
+    ) -> int:
+        """Count total runs (with optional status filter).
+
+        Args:
+            conn: Async database connection
+            status: Optional status filter (QUEUED, RUNNING, COMPLETED, FAILED)
+
+        Returns:
+            Total count of runs
+        """
+        query = "SELECT COUNT(*) FROM runs"
+        params = []
+
+        if status:
+            query += " WHERE status = %s"
+            params.append(status)
+
+        cursor = await conn.execute(query, params)
+        row = await cursor.fetchone()
+        return row[0] if row else 0
 
     # Sync methods for RQ worker
 

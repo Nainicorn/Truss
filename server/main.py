@@ -10,6 +10,7 @@ from config import settings
 from db import init_db_pool, close_db_pool
 from .services.redis import init_redis, close_redis
 from .runs_router import router as runs_router
+from .users_router import router as users_router
 from .ui_router import router as ui_router
 
 logger = structlog.get_logger()
@@ -38,6 +39,7 @@ app.mount("/static", StaticFiles(directory="ui/static"), name="static")
 
 # Include routers
 app.include_router(runs_router)
+app.include_router(users_router)
 app.include_router(ui_router)
 
 
