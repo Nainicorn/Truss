@@ -1,11 +1,4 @@
 <div class="__runDetail">
-  <!-- Breadcrumb -->
-  <div class="__runDetail-breadcrumb">
-    <a href="#" id="btn-back-runs">Runs</a>
-    <span>&gt;</span>
-    <span>{{runId}}</span>
-  </div>
-
   {{#if loading}}
     <div class="loading">
       <span class="spinner"></span>
@@ -22,38 +15,52 @@
   {{else}}
     <!-- Header -->
     <div class="__runDetail-header">
-      <div>
-        <h1>Run {{runId}}</h1>
+      <div class="__runDetail-header-content">
+        <h1>Run Details</h1>
+        <div class="__runDetail-run-id-display">{{runId}}</div>
         <div class="__runDetail-metadata">
-          <span class="badge {{statusBadgeClass status}}">{{status}}</span>
-          <span class="__runDetail-timestamp">Created: {{formatDate createdAt}}</span>
-          <span class="__runDetail-timestamp">Updated: {{formatDate updatedAt}}</span>
+          {{#if (statusBadgeClass status)}}
+            <span class="badge {{statusBadgeClass status}}">{{status}}</span>
+          {{else}}
+            <span>{{status}}</span>
+          {{/if}}
+        </div>
+        <div class="__runDetail-timestamps">
+          <span class="__runDetail-metadata-item">
+            <span class="__runDetail-metadata-label">Created:</span>
+            <span class="__runDetail-metadata-value">{{formatDate createdAt}}</span>
+          </span>
+          <span class="__runDetail-metadata-item">
+            <span class="__runDetail-metadata-label">Updated:</span>
+            <span class="__runDetail-metadata-value">{{formatDate updatedAt}}</span>
+          </span>
         </div>
       </div>
-      <button class="btn btn-primary btn-sm" id="btn-download-report">
-        📥 Download Report
+      <button class="btn btn-secondary btn-sm" id="btn-back">
+        ← Back to Runs
       </button>
     </div>
 
     <!-- Decision Section -->
     {{#if decision}}
       <div class="__runDetail-decision">
-        <h2>Decision</h2>
-        <div class="__runDetail-decision-content">
-          <div class="__runDetail-decision-verdict">
-            <span class="badge {{decisionBadgeClass decision.verdict}} __runDetail-verdict-badge">
-              {{decision.verdict}}
-            </span>
-            {{#if decision.confidence}}
-              <span class="__runDetail-confidence">
-                Confidence: {{decision.confidence}}
-              </span>
-            {{/if}}
-          </div>
+        <div class="__runDetail-decision-header">
+          <h2>Evaluation Decision</h2>
+          <span class="badge {{decisionBadgeClass decision.verdict}} __runDetail-verdict-badge">
+            {{decision.verdict}}
+          </span>
+        </div>
 
-          <p class="__runDetail-rationale">
-            {{decision.rationale}}
-          </p>
+        <div class="__runDetail-decision-content">
+          {{#if decision.confidence}}
+            <div class="__runDetail-confidence-row">
+              <span class="__runDetail-confidence-label">Confidence Score:</span>
+              <div class="__runDetail-confidence-bar">
+                <div class="__runDetail-confidence-fill" style="width: {{decision.confidence}}%"></div>
+              </div>
+              <span class="__runDetail-confidence-value">{{decision.confidence}}</span>
+            </div>
+          {{/if}}
 
           {{#if decision.revision_guidance}}
             <div class="__runDetail-revision">
@@ -74,18 +81,10 @@
             <thead>
               <tr>
                 <th>Probe</th>
-                <th class="__runDetail-stats-cell">
-                  <span class="__runDetail-verdict-icon pass">✓</span> Pass
-                </th>
-                <th class="__runDetail-stats-cell">
-                  <span class="__runDetail-verdict-icon fail">✗</span> Fail
-                </th>
-                <th class="__runDetail-stats-cell">
-                  <span class="__runDetail-verdict-icon uncertain">?</span> Uncertain
-                </th>
-                <th class="__runDetail-stats-cell">
-                  <span class="__runDetail-verdict-icon error">!</span> Error
-                </th>
+                <th class="__runDetail-stats-cell">Pass</th>
+                <th class="__runDetail-stats-cell">Fail</th>
+                <th class="__runDetail-stats-cell">Uncertain</th>
+                <th class="__runDetail-stats-cell">Error</th>
               </tr>
             </thead>
             <tbody>
@@ -112,82 +111,76 @@
       </div>
     {{/if}}
 
-    <!-- Probe Accordion -->
+    <!-- Probe Details Section -->
     {{#if probeResults}}
       <div class="__runDetail-probes">
         <div class="__runDetail-probes-header">
-          <h2>Probe Details</h2>
-          <button class="btn btn-secondary btn-sm" id="btn-collapse-all">
-            Collapse All
-          </button>
+          <h2>Detailed Probe Analysis</h2>
+          <div class="__runDetail-probes-summary">
+          </div>
         </div>
 
         <div class="__runDetail-accordion">
           {{#each probeResults}}
             <div class="__runDetail-accordion-item" data-probe-id="{{this.probe_id}}">
               <button class="__runDetail-accordion-header">
-                <span class="__runDetail-accordion-icon">▶</span>
-                <strong>{{this.probe_id}}</strong>
-                <span class="badge {{verdictBadgeClass this.verdict}}">
-                  {{this.verdict}}
-                </span>
-                {{#if this.confidence}}
-                  <span class="__runDetail-probe-confidence">
-                    {{this.confidence}}
+                <span class="__runDetail-accordion-icon rotated">▶</span>
+                <div class="__runDetail-probe-header-content">
+                  <strong class="__runDetail-probe-title">{{this.probe_id}}</strong>
+                  <span class="badge {{verdictBadgeClass this.verdict}}">
+                    {{this.verdict}}
                   </span>
-                {{/if}}
+                </div>
               </button>
 
-              <div class="__runDetail-accordion-content" style="display: none;">
-                <!-- Probe metadata -->
-                <div class="__runDetail-probe-meta">
-                  <div class="__runDetail-meta-row">
-                    <span class="__runDetail-meta-label">Description:</span>
-                    <span>{{this.description}}</span>
+              <div class="__runDetail-accordion-content" style="display: block;">
+                <!-- Probe metadata section -->
+
+                {{#if this.reasoning}}
+                  <div class="__runDetail-probe-metadata">
+                    <span class="__runDetail-probe-metadata-label">Reasoning:</span>
+                    <span class="__runDetail-probe-metadata-value">{{this.reasoning}}</span>
                   </div>
-                  {{#if this.reasoning}}
-                    <div class="__runDetail-meta-row">
-                      <span class="__runDetail-meta-label">Reasoning:</span>
-                      <span>{{this.reasoning}}</span>
-                    </div>
-                  {{/if}}
-                  {{#if this.expected_checks}}
-                    <div class="__runDetail-meta-row">
-                      <span class="__runDetail-meta-label">Expected Checks:</span>
-                      <ul>
-                        {{#each this.expected_checks}}
-                          <li>{{this}}</li>
-                        {{/each}}
-                      </ul>
-                    </div>
-                  {{/if}}
-                </div>
+                {{/if}}
+
+                {{#if this.expected_checks}}
+                  <div class="__runDetail-probe-metadata">
+                    <span class="__runDetail-probe-metadata-label">Expected Checks:</span>
+                    <ul class="__runDetail-checks-list-inline">
+                      {{#each this.expected_checks}}
+                        <li>{{this}}</li>
+                      {{/each}}
+                    </ul>
+                  </div>
+                {{/if}}
 
                 <!-- Evidence blocks -->
                 {{#if this.evidence}}
-                  <div class="__runDetail-evidence">
-                    <h4>Evidence</h4>
-                    {{#each this.evidence}}
-                      <div class="__runDetail-evidence-block">
-                        <div class="__runDetail-evidence-header">
-                          <span class="__runDetail-evidence-source">{{this.source}}</span>
-                          {{#if this.locator}}
-                            <span class="__runDetail-evidence-locator">{{this.locator}}</span>
+                  <div class="__runDetail-probe-section">
+                    <h4 class="__runDetail-section-title">Evidence</h4>
+                    <div class="__runDetail-evidence-list">
+                      {{#each this.evidence}}
+                        <div class="__runDetail-evidence-block">
+                          <div class="__runDetail-evidence-header">
+                            <span class="__runDetail-evidence-source">{{this.source}}</span>
+                            {{#if this.locator}}
+                              <span class="__runDetail-evidence-locator">{{this.locator}}</span>
+                            {{/if}}
+                          </div>
+                          {{#if this.excerpt}}
+                            <pre class="__runDetail-evidence-content"><code>{{this.excerpt}}</code></pre>
                           {{/if}}
                         </div>
-                        {{#if this.excerpt}}
-                          <pre class="__runDetail-evidence-content"><code>{{this.excerpt}}</code></pre>
-                        {{/if}}
-                      </div>
-                    {{/each}}
+                      {{/each}}
+                    </div>
                   </div>
                 {{/if}}
 
                 <!-- Failure labels -->
                 {{#if this.failure_labels}}
-                  <div class="__runDetail-failure-labels">
-                    <h4>Failure Labels</h4>
-                    <div class="__runDetail-labels-list">
+                  <div class="__runDetail-probe-metadata">
+                    <span class="__runDetail-probe-metadata-label">Failure Classifications:</span>
+                    <div class="__runDetail-labels-list-inline">
                       {{#each this.failure_labels}}
                         <span class="badge badge-danger">{{this}}</span>
                       {{/each}}
@@ -205,11 +198,11 @@
     {{#if taskSpec}}
       <div class="__runDetail-section">
         <button class="__runDetail-section-toggle" id="btn-toggle-task-spec">
-          <span class="__runDetail-section-icon">▶</span>
+          <span class="__runDetail-section-icon rotated">▶</span>
           <strong>Task Specification</strong>
         </button>
 
-        <div class="__runDetail-section-content" id="task-spec-content" style="display: none;">
+        <div class="__runDetail-section-content" id="task-spec-content" style="display: block;">
           <pre class="__runDetail-code"><code>{{jsonStringify taskSpec}}</code></pre>
         </div>
       </div>
@@ -219,11 +212,11 @@
     {{#if candidateOutput}}
       <div class="__runDetail-section">
         <button class="__runDetail-section-toggle" id="btn-toggle-candidate">
-          <span class="__runDetail-section-icon">▶</span>
+          <span class="__runDetail-section-icon rotated">▶</span>
           <strong>Candidate Output</strong>
         </button>
 
-        <div class="__runDetail-section-content" id="candidate-output-content" style="display: none;">
+        <div class="__runDetail-section-content" id="candidate-output-content" style="display: block;">
           <pre class="__runDetail-code"><code>{{jsonStringify candidateOutput}}</code></pre>
         </div>
       </div>
@@ -233,21 +226,15 @@
     {{#if auditTrace}}
       <div class="__runDetail-section">
         <button class="__runDetail-section-toggle" id="btn-toggle-audit-trace">
-          <span class="__runDetail-section-icon">▶</span>
+          <span class="__runDetail-section-icon rotated">▶</span>
           <strong>Audit Trace</strong>
         </button>
 
-        <div class="__runDetail-section-content" id="audit-trace-content" style="display: none;">
+        <div class="__runDetail-section-content" id="audit-trace-content" style="display: block;">
           <pre class="__runDetail-code"><code>{{jsonStringify auditTrace}}</code></pre>
         </div>
       </div>
     {{/if}}
 
-    <!-- Back Button -->
-    <div class="__runDetail-footer">
-      <button class="btn btn-secondary" id="btn-back">
-        ← Back to Runs
-      </button>
-    </div>
   {{/if}}
 </div>

@@ -26,7 +26,7 @@ const usersapi = {
 
       const data = await response.json();
 
-      // Store user ID in cookie (backend sets __punk-userid cookie)
+      // Store user ID in cookie (backend sets __polaris-userid cookie)
       // Frontend can also access user_id from response if needed
       return data;
     } catch (error) {

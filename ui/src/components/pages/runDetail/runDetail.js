@@ -30,7 +30,7 @@ Handlebars.registerHelper('statusBadgeClass', (status) => {
     COMPLETED: 'badge-completed',
     FAILED: 'badge-failed',
   };
-  return classes[status] || 'badge-gray';
+  return classes[status] || '';
 });
 Handlebars.registerHelper('decisionBadgeClass', (verdict) => {
   const classes = {
@@ -39,7 +39,7 @@ Handlebars.registerHelper('decisionBadgeClass', (verdict) => {
     CONSTRAIN: 'badge-constrain',
     ESCALATE: 'badge-escalate',
   };
-  return classes[verdict] || 'badge-gray';
+  return classes[verdict] || '';
 });
 Handlebars.registerHelper('verdictBadgeClass', (verdict) => {
   const classes = {
@@ -48,7 +48,7 @@ Handlebars.registerHelper('verdictBadgeClass', (verdict) => {
     UNCERTAIN: 'badge-uncertain',
     ERROR: 'badge-error',
   };
-  return classes[verdict] || 'badge-gray';
+  return classes[verdict] || '';
 });
 
 const template = Handlebars.compile(runDetailTemplate);
@@ -143,11 +143,16 @@ const runDetail = {
     }
 
     // Extract data from runRecord
+    // Use decision.created_at as fallback for updatedAt if not available
+    const updatedAt = this.runRecord.updated_at ||
+                      (this.runRecord.decision && this.runRecord.decision.created_at) ||
+                      this.runRecord.created_at;
+
     const data = {
       runId: this.runRecord.run_id,
       status: this.runRecord.status,
       createdAt: this.runRecord.created_at,
-      updatedAt: this.runRecord.updated_at,
+      updatedAt: updatedAt,
       loading: this.loading,
       error: this.error,
       processingMessage: this.processingMessage,
@@ -162,6 +167,8 @@ const runDetail = {
     if (this.runRecord.probe_plan && this.runRecord.probe_results) {
       data.probeResults = this.runRecord.probe_results.map(result => {
         const probeDef = this.runRecord.probe_plan.probes.find(p => p.probe_id === result.probe_id);
+        // Mark all probes as expanded by default
+        this.expandedProbes.add(result.probe_id);
         return {
           ...result,
           description: probeDef?.description || result.probe_id,
@@ -201,7 +208,7 @@ const runDetail = {
     });
 
     // Collapse all button
-    const collapseAllBtn = this.appMain.getElementById('btn-collapse-all');
+    const collapseAllBtn = document.getElementById('btn-collapse-all');
     if (collapseAllBtn) {
       collapseAllBtn.addEventListener('click', () => this._collapseAll());
     }
@@ -212,27 +219,12 @@ const runDetail = {
       toggle.addEventListener('click', (e) => this._toggleSection(e, toggle));
     });
 
-    // Back buttons
-    const backRunsBtn = this.appMain.getElementById('btn-back-runs');
-    const backBtn = this.appMain.getElementById('btn-back');
-
-    if (backRunsBtn) {
-      backRunsBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        messages.publish('navigateToRunsList', {});
-      });
-    }
-
+    // Back button
+    const backBtn = document.getElementById('btn-back');
     if (backBtn) {
       backBtn.addEventListener('click', () => {
         messages.publish('navigateToRunsList', {});
       });
-    }
-
-    // Download report button
-    const downloadBtn = this.appMain.getElementById('btn-download-report');
-    if (downloadBtn) {
-      downloadBtn.addEventListener('click', () => this._downloadReport());
     }
   },
 
@@ -297,19 +289,6 @@ const runDetail = {
 
     if (icon) {
       icon.classList.toggle('rotated');
-    }
-  },
-
-  /**
-   * Download markdown report
-   */
-  async _downloadReport() {
-    try {
-      await runsapi.downloadReportMd(this.runId);
-    } catch (error) {
-      console.error('Error downloading report:', error);
-      this.error = `Failed to download report: ${error.message}`;
-      this._renderTemplate();
     }
   },
 

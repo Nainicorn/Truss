@@ -1,7 +1,51 @@
-# Polaris
-**Trace-based Evaluation, Governance, and Self-Correction Framework (AECF)**
+# Polaris 🌟
+**Trace-based Evaluation, Governance, and Self-Correction Framework**
 
-Polaris is an evaluation system for AI agents and language models. It generates test probes, executes them with evidence collection, and produces auditable decisions: **Accept**, **Revise**, **Constrain**, or **Escalate**.
+Polaris is a production-grade evaluation system that automatically tests AI model outputs against constraints and rubrics. It generates intelligent test probes, executes them with evidence collection, and produces transparent, auditable decisions with full execution traces.
+
+---
+
+## Why Polaris?
+
+### The Problem
+When evaluating AI model outputs, you need:
+- **Transparency**: Why was this output accepted/rejected?
+- **Reproducibility**: Run the same evaluation again and get the same result
+- **Auditability**: Complete record of how the decision was made
+- **Scalability**: Test multiple outputs against complex rubrics
+
+### The Solution
+Polaris provides:
+✅ **Intelligent test probes** that understand constraints (not just keyword matching)
+✅ **Evidence-backed decisions** with specific excerpts and reasoning
+✅ **Immutable audit traces** for compliance and debugging
+✅ **Web UI + REST API** for integration into any pipeline
+
+## Key Features
+
+### Intelligent Constraint Parsing
+Not just keyword matching — Polaris understands:
+- **Word count limits**: "100 words max" → counts actual words
+- **Length constraints**: "under 500 characters" → validates length
+- **Minimum requirements**: "at least 10 sentences" → enforces minimums
+- **Semantic rules**: Falls back to keyword matching for complex constraints
+
+### Evidence-Driven Decisions
+Every decision includes:
+- **Verdict**: ACCEPT, REVISE, CONSTRAIN, or ESCALATE
+- **Rationale**: Why the decision was made
+- **Evidence**: Specific excerpts or findings
+- **Failed Probes**: Which tests failed and why
+- **Confidence Scores**: How confident is this decision?
+
+### Audit Trails & Reproducibility
+- **Complete execution timeline**: Every step of the evaluation
+- **Node timings**: See where time is spent
+- **Tool call logs**: Track all function calls (when enabled)
+- **Deterministic execution**: Run twice, get same result
+- **JSONB storage**: Full run records searchable and queryable
+
+---
 
 ## Quick Start
 
@@ -108,11 +152,21 @@ curl -X POST http://localhost:8000/api/runs \
 ## Architecture
 
 ### Tech Stack
-- **Backend**: Python 3.11, FastAPI, Pydantic v2
-- **Database**: PostgreSQL 16 (JSONB storage)
-- **Job Queue**: Redis + RQ (Redis Queue)
-- **Orchestration**: LangGraph state machine
-- **UI**: Server-rendered HTML/Jinja2 + Vanilla JS
+| Layer | Technology |
+|-------|-----------|
+| **Backend** | Python 3.11, FastAPI, Pydantic v2 |
+| **Database** | PostgreSQL 16 (JSONB for flexible schema) |
+| **Job Queue** | Redis + RQ (Redis Queue) for async evaluation |
+| **Orchestration** | LangGraph (state machine for evaluation pipeline) |
+| **UI** | Vanilla JS (ES2022), HTML5, Handlebars, CSS (no frameworks) |
+| **DevOps** | Docker, Docker Compose |
+
+**Why these choices?**
+- **FastAPI**: Type-safe, auto-docs (OpenAPI), async support
+- **Pydantic v2**: Schema validation, JSON serialization for audit trails
+- **PostgreSQL JSONB**: Flexible schema for complex run records while maintaining ACID guarantees
+- **LangGraph**: Explicit state machine prevents hidden loops and ensures reproducibility
+- **Vanilla JS**: Zero dependencies, lightweight polling logic, minimal build pipeline
 
 ### Core Flow
 
@@ -141,10 +195,27 @@ curl -X POST http://localhost:8000/api/runs \
 
 ### Probe Suite (MVP)
 
-Every run executes 3 probes:
-1. **Instruction Compliance**: Does output follow task instructions?
-2. **Claim Support**: Are claims properly supported/grounded?
-3. **Consistency**: No internal contradictions or reference errors?
+Every run executes 3 deterministic probes:
+
+1. **Instruction Compliance** (`instruction_compliance.py`)
+   - ✨ Smart constraint validation (word count, length, minimums)
+   - Regex parsing for numeric constraints
+   - Fallback keyword matching for semantic rules
+   - Returns: PASS/FAIL with evidence
+
+2. **Schema Validation** (`schema_validation.py`)
+   - Validates output structure and required fields
+   - JSON round-trip validation (serialize → deserialize → validate)
+   - Checks for malformed or incomplete responses
+   - Returns: PASS/FAIL with specific field errors
+
+3. **Consistency Check** (`consistency_check.py`)
+   - Detects contradictions (yes/no, true/false, etc.)
+   - Warns on excessive length (>100k chars)
+   - Checks for empty content
+   - Returns: PASS/FAIL with contradiction details
+
+**Deterministic & Fast**: All probes run synchronously with no LLM calls (MVP) — results are reproducible and instant.
 
 ## Environment Variables
 
@@ -254,12 +325,29 @@ docker compose up -d postgres
 - **Probe execution is capped at 3** per run (MVP) — extensible in future phases
 - **Strict validation** — invalid task_spec or candidate_output rejected at API boundary
 
-## Next Steps
+## Roadmap
 
-- Add support for **revision loops** (max 2 iterations)
-- Implement **failure taxonomy dashboard**
-- Add **metrics & analytics** page
-- Support for **custom rubrics** and **tool-call verification**
+### Phase 5 (In Progress)
+- Add support for **revision loops** (max 2 iterations) — allow outputs to be improved automatically
+- Implement **failure taxonomy dashboard** — categorize failure patterns
+- Add **metrics & analytics** page — track evaluation trends
+
+### Phase 6+ (Future)
+- **Custom rubrics** — define domain-specific evaluation rules
+- **Tool-call verification** — validate function calls and arguments
+- **LLM-powered probes** — use language models for semantic evaluation
+- **Failure prediction** — predict which outputs will fail before running
+- **Batch evaluation** — process 1000s of outputs efficiently
+
+---
+
+## Contributing
+
+This project follows strict architectural principles (see [CLAUDE.md](CLAUDE.md)):
+- Schemas must be locked before implementation
+- All decisions must be auditable and reproducible
+- No unbounded loops (max 2 iterations for revisions)
+- Tests required for new probe implementations
 
 ## License
 

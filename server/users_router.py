@@ -41,7 +41,7 @@ async def login_user(request: UserLoginRequest, response: Response) -> UserLogin
       "email": "user@example.com"
     }
 
-    Sets HTTP-only cookie: __punk-userid
+    Sets HTTP-only cookie: __polaris-userid
     """
     # Generate a simple user ID based on email hash
     email_hash = secrets.token_hex(8)
@@ -49,7 +49,7 @@ async def login_user(request: UserLoginRequest, response: Response) -> UserLogin
 
     # Set secure HTTP-only cookie (valid for 24 hours)
     response.set_cookie(
-        key="__punk-userid",
+        key="__polaris-userid",
         value=user_id,
         max_age=86400,  # 24 hours
         secure=False,  # Set to True in production with HTTPS
@@ -74,11 +74,11 @@ async def logout_user(response: Response) -> dict:
       "status": "logged_out"
     }
 
-    Clears HTTP-only cookie: __punk-userid
+    Clears HTTP-only cookie: __polaris-userid
     """
     # Delete the cookie by setting max_age to 0
     response.delete_cookie(
-        key="__punk-userid",
+        key="__polaris-userid",
         path="/",
     )
 
@@ -99,7 +99,7 @@ async def get_profile() -> dict:
       "email": "user@example.com"
     }
     """
-    # In a real system, this would read the __punk-userid cookie
+    # In a real system, this would read the __polaris-userid cookie
     # and fetch user data from the database
     return {
         "user_id": "user_demo",

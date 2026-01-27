@@ -5,19 +5,19 @@
 
 :root {
   /* Colors */
-  --primary-bg: #0f0f0f;
-  --secondary-bg: #1a1a1a;
-  --tertiary-bg: #252525;
-  --text-primary: #e5e5e5;
-  --text-secondary: #b3b3b3;
-  --accent: #6366f1;
-  --accent-hover: #7c3aed;
+  --primary-bg: #262d39;
+  --secondary-bg: #262d39;
+  --tertiary-bg: #3d4453;
+  --text-primary: #F7F7F7;
+  --text-secondary: #F7F7F7;
+  --accent: #93DEFF;
+  --accent-hover: #6db5cc;
   --success: #10b981;
   --danger: #ef4444;
   --warning: #f59e0b;
   --info: #3b82f6;
-  --border: #2d2d2d;
-  --border-dark: #1f1f1f;
+  --border: #606470;
+  --border-dark: #323643;
 
   /* Typography */
   --font-family: 'Segoe UI', 'Roboto', 'System Font', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -40,6 +40,8 @@
   --spacing-10: 20px;
   --spacing-12: 24px;
   --spacing-16: 32px;
+  --spacing-20: 40px;
+  --spacing-24: 48px;
 
   /* Borders & Shadows */
   --border-radius: 4px;
@@ -99,7 +101,7 @@ body {
   border-bottom: 1px solid var(--border);
   padding: var(--spacing-8) var(--spacing-16);
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   box-shadow: var(--shadow-sm);
 }
@@ -114,15 +116,11 @@ body {
 }
 
 .app-header-logo {
-  width: 32px;
-  height: 32px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
-  border-radius: var(--border-radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: var(--font-weight-bold);
-  color: white;
+  color: var(--accent);
   font-size: 18px;
 }
 
@@ -211,12 +209,14 @@ button,
 
 .btn-primary {
   background-color: var(--accent);
-  color: white;
+  color: var(--primary-bg);
+  font-weight: var(--font-weight-semibold);
 }
 
 .btn-primary:hover {
   background-color: var(--accent-hover);
   box-shadow: var(--shadow-md);
+  color: var(--primary-bg);
 }
 
 .btn-primary:active {
@@ -227,11 +227,13 @@ button,
   background-color: var(--tertiary-bg);
   color: var(--text-primary);
   border: 1px solid var(--border);
+  font-weight: var(--font-weight-medium);
 }
 
 .btn-secondary:hover {
-  background-color: var(--border);
+  background-color: var(--accent);
   border-color: var(--accent);
+  color: #323643;
 }
 
 .btn-danger {
@@ -300,6 +302,8 @@ select {
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .badge-success {
@@ -322,9 +326,160 @@ select {
   color: var(--info);
 }
 
-.badge-gray {
-  background-color: rgba(179, 179, 179, 0.15);
-  color: var(--text-secondary);
+/* ============================================================================
+   DECISION VERDICT BADGES
+   =========================================================================== */
+
+/* ACCEPT - Green */
+.badge-decision-accept {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border-left: 3px solid #10b981;
+}
+
+/* REVISE - Orange */
+.badge-decision-revise {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border-left: 3px solid #f59e0b;
+}
+
+/* CONSTRAIN - Blue */
+.badge-decision-constrain {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  border-left: 3px solid #3b82f6;
+}
+
+/* ESCALATE - Red */
+.badge-decision-escalate {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border-left: 3px solid #ef4444;
+}
+
+/* ============================================================================
+   PROBE VERDICT BADGES
+   =========================================================================== */
+
+/* PASS - Green */
+.badge-probe-pass {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border-left: 3px solid #10b981;
+}
+
+/* FAIL - Red */
+.badge-probe-fail {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border-left: 3px solid #ef4444;
+}
+
+/* UNCERTAIN - Yellow */
+.badge-probe-uncertain {
+  background-color: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border-left: 3px solid #fbbf24;
+}
+
+/* ERROR - Dark Red */
+.badge-probe-error {
+  background-color: rgba(185, 28, 28, 0.15);
+  color: #dc2626;
+  border-left: 3px solid #dc2626;
+}
+
+/* ============================================================================
+   NODE STATUS BADGES
+   =========================================================================== */
+
+/* STARTED - Blue */
+.badge-node-started {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  border-left: 3px solid #3b82f6;
+}
+
+/* COMPLETED - Green */
+.badge-node-completed {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border-left: 3px solid #10b981;
+}
+
+/* FAILED - Red */
+.badge-node-failed {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border-left: 3px solid #ef4444;
+}
+
+/* ============================================================================
+   FAILURE LABEL BADGES
+   =========================================================================== */
+
+/* INSTRUCTION_VIOLATION - Red */
+.badge-label-instruction-violation {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border-left: 3px solid #ef4444;
+}
+
+/* UNSUPPORTED_CLAIM - Orange */
+.badge-label-unsupported-claim {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border-left: 3px solid #f59e0b;
+}
+
+/* INCONSISTENCY - Yellow */
+.badge-label-inconsistency {
+  background-color: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border-left: 3px solid #fbbf24;
+}
+
+/* SCHEMA_VIOLATION - Indigo */
+.badge-label-schema-violation {
+  background-color: rgba(99, 102, 241, 0.15);
+  color: #6366f1;
+  border-left: 3px solid #6366f1;
+}
+
+/* POLICY_VIOLATION - Dark Red */
+.badge-label-policy-violation {
+  background-color: rgba(185, 28, 28, 0.15);
+  color: #dc2626;
+  border-left: 3px solid #dc2626;
+}
+
+/* TOOL_MISUSE - Orange */
+.badge-label-tool-misuse {
+  background-color: rgba(234, 88, 12, 0.15);
+  color: #ea580c;
+  border-left: 3px solid #ea580c;
+}
+
+/* HALLUCINATION - Pink */
+.badge-label-hallucination {
+  background-color: rgba(236, 72, 153, 0.15);
+  color: #ec4899;
+  border-left: 3px solid #ec4899;
+}
+
+/* SAFETY_CONCERN - Purple */
+.badge-label-safety-concern {
+  background-color: rgba(168, 85, 247, 0.15);
+  color: #a855f7;
+  border-left: 3px solid #a855f7;
+}
+
+/* OTHER - Gray */
+.badge-label-other {
+  background-color: rgba(107, 114, 128, 0.15);
+  color: #6b7280;
+  border-left: 3px solid #6b7280;
 }
 
 /* ============================================================================
@@ -593,13 +748,10 @@ pre code {
 
   .app-header {
     padding: var(--spacing-6) var(--spacing-10);
-    flex-direction: column;
-    gap: var(--spacing-8);
   }
 
   .app-header-title {
-    width: 100%;
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   .grid {

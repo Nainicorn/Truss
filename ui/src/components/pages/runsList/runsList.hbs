@@ -1,9 +1,145 @@
 <div class="__runsList">
   <div class="__runsList-header">
-    <h1>Evaluation Runs</h1>
-    <button class="btn btn-primary btn-sm" id="btn-refresh">
-      🔄 Refresh
+    <h1>Runs</h1>
+    <button class="btn btn-primary btn-sm" id="btn-create-run">
+      + Create New Run
     </button>
+  </div>
+
+  <!-- Create Run Form Modal -->
+  <div class="__runsList-modal" id="create-run-modal" style="display: none;">
+    <div class="__runsList-modal-content">
+      <div class="__runsList-modal-header">
+        <h2>Create New Run</h2>
+        <button class="__runsList-modal-close" id="btn-close-modal">&times;</button>
+      </div>
+
+      <form id="create-run-form" class="__runsList-form">
+        <!-- Task ID -->
+        <div class="__runsList-form-group">
+          <label for="task-id">Task ID *</label>
+          <input
+            type="text"
+            id="task-id"
+            name="task_id"
+            class="__runsList-form-input"
+            placeholder="e.g., task_summarization_001"
+            required
+          />
+          <small>Unique identifier for this task</small>
+        </div>
+
+        <!-- Description -->
+        <div class="__runsList-form-group">
+          <label for="task-description">Description *</label>
+          <textarea
+            id="task-description"
+            name="description"
+            class="__runsList-form-textarea"
+            placeholder="e.g., Summarize the provided article in 2-3 sentences"
+            rows="3"
+            required
+          ></textarea>
+          <small>What does the candidate need to do?</small>
+        </div>
+
+        <!-- Constraints -->
+        <div class="__runsList-form-group">
+          <label for="task-constraints">Constraints</label>
+          <textarea
+            id="task-constraints"
+            name="constraints"
+            class="__runsList-form-textarea"
+            placeholder="e.g., Must be under 100 words
+Must not contain names
+Must maintain neutral tone"
+            rows="2"
+          ></textarea>
+          <small>One constraint per line (optional)</small>
+        </div>
+
+        <!-- Allowed Tools -->
+        <div class="__runsList-form-group">
+          <label for="task-tools">Allowed Tools</label>
+          <textarea
+            id="task-tools"
+            name="allowed_tools"
+            class="__runsList-form-textarea"
+            placeholder="e.g., web_search
+pdf_reader
+calculator"
+            rows="2"
+          ></textarea>
+          <small>One tool per line. Leave empty to allow all tools (optional)</small>
+        </div>
+
+        <!-- Domain Tags -->
+        <div class="__runsList-form-group">
+          <label for="task-tags">Domain Tags</label>
+          <input
+            type="text"
+            id="task-tags"
+            name="domain_tags"
+            class="__runsList-form-input"
+            placeholder="e.g., medical, finance, legal (comma-separated)"
+          />
+          <small>For categorization (optional)</small>
+        </div>
+
+        <!-- Rubric ID -->
+        <div class="__runsList-form-group">
+          <label for="rubric-id">Rubric ID</label>
+          <input
+            type="text"
+            id="rubric-id"
+            name="rubric_id"
+            class="__runsList-form-input"
+            placeholder="e.g., rubric_standard_eval"
+          />
+          <small>Reference to evaluation rubric. Leave empty to auto-generate (optional)</small>
+        </div>
+
+        <hr style="margin: var(--spacing-16) 0; border: none; border-top: 1px solid var(--border);" />
+
+        <!-- Candidate ID -->
+        <div class="__runsList-form-group">
+          <label for="candidate-id">Candidate ID *</label>
+          <input
+            type="text"
+            id="candidate-id"
+            name="candidate_id"
+            class="__runsList-form-input"
+            placeholder="e.g., gpt4_v1, claude_opus, user_submission"
+            required
+          />
+          <small>Identifier for the model/agent producing the output</small>
+        </div>
+
+        <!-- Content -->
+        <div class="__runsList-form-group">
+          <label for="candidate-content">Response Content *</label>
+          <textarea
+            id="candidate-content"
+            name="content"
+            class="__runsList-form-textarea"
+            placeholder="e.g., The article discusses climate change mitigation strategies, focusing on renewable energy adoption and policy frameworks needed for global coordination."
+            rows="4"
+            required
+          ></textarea>
+          <small>The actual response/output from the candidate</small>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="__runsList-form-actions">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-form">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-form">
+            Create Run
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
   {{#if loading}}
@@ -16,91 +152,24 @@
       <strong>Error:</strong> {{error}}
     </div>
   {{else}}
-    <!-- Filters Section -->
-    <div class="__runsList-filters">
-      <div class="__runsList-filter-group">
-        <label for="filter-min-id">Filter by Min ID:</label>
-        <input
-          type="text"
-          id="filter-min-id"
-          class="__runsList-filter-input"
-          placeholder="e.g., run_abc"
-          value="{{filterMinId}}"
-        />
-      </div>
-
-      <div class="__runsList-filter-group">
-        <label for="filter-status">Status:</label>
-        <select id="filter-status" class="__runsList-filter-select">
-          <option value="">All Statuses</option>
-          <option value="QUEUED" {{#if statusFilter}}{{#eq statusFilter "QUEUED"}}selected{{/eq}}{{/if}}>QUEUED</option>
-          <option value="RUNNING" {{#if statusFilter}}{{#eq statusFilter "RUNNING"}}selected{{/eq}}{{/if}}>RUNNING</option>
-          <option value="COMPLETED" {{#if statusFilter}}{{#eq statusFilter "COMPLETED"}}selected{{/eq}}{{/if}}>COMPLETED</option>
-          <option value="FAILED" {{#if statusFilter}}{{#eq statusFilter "FAILED"}}selected{{/eq}}{{/if}}>FAILED</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Evolution Summary (Collapsible) -->
-    <div class="__runsList-summary">
-      <button class="__runsList-summary-toggle" id="btn-toggle-summary">
-        <span class="__runsList-summary-icon">▶</span>
-        <strong>Evolution Summary</strong>
-      </button>
-
-      <div class="__runsList-summary-content" id="summary-content" style="display: none;">
-        <div class="__runsList-summary-grid">
-          <div class="__runsList-summary-item">
-            <div class="__runsList-summary-label">Total Runs</div>
-            <div class="__runsList-summary-value">{{total}}</div>
-          </div>
-
-          <div class="__runsList-summary-item">
-            <div class="__runsList-summary-label">Pass Rate</div>
-            <div class="__runsList-summary-value">{{passRate}}%</div>
-          </div>
-
-          {{#if decisionBreakdown}}
-            <div class="__runsList-summary-item">
-              <div class="__runsList-summary-label">ACCEPT</div>
-              <div class="__runsList-summary-value">{{decisionBreakdown.ACCEPT}}</div>
-            </div>
-
-            <div class="__runsList-summary-item">
-              <div class="__runsList-summary-label">REVISE</div>
-              <div class="__runsList-summary-value">{{decisionBreakdown.REVISE}}</div>
-            </div>
-
-            <div class="__runsList-summary-item">
-              <div class="__runsList-summary-label">CONSTRAIN</div>
-              <div class="__runsList-summary-value">{{decisionBreakdown.CONSTRAIN}}</div>
-            </div>
-
-            <div class="__runsList-summary-item">
-              <div class="__runsList-summary-label">ESCALATE</div>
-              <div class="__runsList-summary-value">{{decisionBreakdown.ESCALATE}}</div>
-            </div>
-          {{/if}}
-        </div>
-      </div>
-    </div>
-
     <!-- Runs Table -->
     {{#if runs.length}}
       <div class="__runsList-table-container">
         <table class="__runsList-table">
           <thead>
             <tr>
+              <th>Task ID</th>
               <th>Run ID</th>
               <th>Status</th>
-              <th>Created</th>
-              <th>Updated</th>
               <th>Decision</th>
             </tr>
           </thead>
           <tbody>
             {{#each runs}}
               <tr class="__runsList-row" data-run-id="{{this.run_id}}">
+                <td class="__runsList-task-id">
+                  {{this.task_spec.task_id}}
+                </td>
                 <td class="__runsList-run-id">
                   <code>{{this.run_id}}</code>
                 </td>
@@ -108,12 +177,6 @@
                   <span class="badge {{statusBadgeClass this.status}}">
                     {{this.status}}
                   </span>
-                </td>
-                <td>
-                  <small>{{formatDate this.created_at}}</small>
-                </td>
-                <td>
-                  <small>{{formatDate this.updated_at}}</small>
                 </td>
                 <td>
                   {{#if this.run_record.decision}}
@@ -130,28 +193,13 @@
         </table>
       </div>
 
-      <!-- Pagination -->
-      <div class="__runsList-pagination">
-        <button
-          class="btn btn-secondary btn-sm"
-          id="btn-prev"
-          {{#if isPreviousDisabled}}disabled{{/if}}
-        >
-          ← Previous
-        </button>
+      <!-- Infinite scroll sentinel -->
+      <div class="__runsList-sentinel" id="scroll-sentinel"></div>
 
-        <span class="__runsList-page-info">
-          Page {{currentPage}} of {{totalPages}}
-          (Showing {{runs.length}} of {{total}} runs)
-        </span>
-
-        <button
-          class="btn btn-secondary btn-sm"
-          id="btn-next"
-          {{#if isNextDisabled}}disabled{{/if}}
-        >
-          Next →
-        </button>
+      <!-- Loading indicator for more runs -->
+      <div class="__runsList-loading-more" id="loading-more" style="display: none;">
+        <span class="spinner"></span>
+        <span>Loading more runs...</span>
       </div>
     {{else}}
       <div class="error" style="text-align: center;">
