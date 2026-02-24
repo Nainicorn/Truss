@@ -1,3 +1,58 @@
+# Rules
+
+- **Always ask the user before compacting context.** Never auto-compact without explicit approval.
+
+---
+
+# Frontend Component Architecture (User Preference)
+
+Follow the patterns from the user's `punk-app` project (`/Users/nainicorn/Documents/punk-app`) as the reference style.
+
+## 3-File Component Convention
+
+Every component gets its own folder with three files:
+
+```
+component-name/
+├── component-name.js    # Logic, lifecycle, event binding
+├── component-name.hbs   # Handlebars template
+└── component-name.css   # Scoped styles
+```
+
+## Layout Component (Per-Screen Shell)
+
+Every project has a **layout component** that defines the screen structure. The layout changes per context — login shows a different header/body than the dashboard, which differs from the run viewer, etc. Layout acts as the persistent shell that mounts child components into designated containers.
+
+## Component Breakdown
+
+Components are organized by **function**, not by generic names like "body":
+
+| Component | Purpose |
+|-----------|---------|
+| **layout** | Screen shell — swaps structure per page context (login vs dashboard vs run viewer) |
+| **login** | Authentication screen |
+| **header** | Top bar — appearance and behavior changes per layout context |
+| **sidebar** | Navigation/controls panel |
+| **chatbot** | Chat/agent interaction interface |
+| **results** | Task/run results display |
+| **live-screen** | Real-time execution viewer |
+| **data** | Data tables, metrics, evidence browser |
+
+*(Components will evolve as Helm is built — the above are examples of the naming style.)*
+
+## Key Patterns (from punk-app)
+
+- **Conditional Handlebars blocks**: Templates use `{{#if main}}`, `{{#if menu}}` etc. for multi-view rendering from a single template
+- **Double-underscore CSS classes**: `.__component-name`, `.__component-name-child` for scoped styling
+- **Underscore-prefixed private methods**: `_bindEvents()`, `_loadData()`
+- **Pub/sub messaging**: Components communicate via a message bus, not direct imports
+- **Data attributes for state**: `data-action`, `data-id`, `data-collapsed` etc.
+- **Native `<dialog>` for modals**: Settings, forms, confirmations use `.showModal()`
+- **`insertAdjacentHTML()`** for dynamic DOM updates
+- **No framework** — vanilla JS, ES6 modules, Handlebars, CSS
+
+---
+
 # Helm — AgentOps Platform
 
 ## What This Is

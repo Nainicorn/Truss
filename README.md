@@ -114,30 +114,6 @@ All execution is event-driven and fully logged.
 
 ---
 
-##  Repository Structure
-
-```
-helm/
-├── frontend/
-│   ├── src/
-│   ├── templates/
-│   ├── styles/
-│   └── components/
-├── backend/
-│   ├── app/
-│   ├── api/
-│   ├── orchestrator/
-│   ├── verifier/
-│   └── models/
-├── workers/
-│   └── playwright/
-├── infra/
-│   └── docker/
-└── docs/
-```
-
----
-
 ## Verification & Governance
 
 Helm enforces correctness through:
