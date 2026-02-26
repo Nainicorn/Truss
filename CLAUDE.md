@@ -1,6 +1,6 @@
 # Truss — Agent Safety Middleware
 
-> **Trust your agents.**
+**Trust your agents.**
 
 Truss is a framework-agnostic safety layer for autonomous AI agents. Any agent, any framework, routes its actions through Truss before execution. Truss classifies blast radius, detects prompt injection deterministically, and enforces an approve/block/escalate decision — before irreversible damage happens.
 
