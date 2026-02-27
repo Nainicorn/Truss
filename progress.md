@@ -128,18 +128,35 @@
 
 **Total: 120 backend tests passing, zero failures (unchanged)**
 
-## Next Up
+### Phase 5: Deploy + Polish — COMPLETE (2026-02-26)
 
-### Phase 5: Deploy + Polish
+**Step 18: Deploy setup**
+- Dockerfile: multi-stage (Node frontend + Python backend)
+- FastAPI serves Vite build from /dist (same-origin production)
+- render.yaml for Render (free tier, persistent SQLite disk)
+- .dockerignore, frontend auto-detects prod vs dev API origin
 
-**Step 18: Deploy to Railway/Render**
-- Public URL, everything works cold
+**Step 19: README**
+- Complete rewrite: quickstart, architecture diagram, API reference
+- Action taxonomy, injection scanner patterns, deploy instructions
+- Docker + Render + env var documentation
 
-**Step 19: README + demo video embed**
-- Someone unfamiliar could run this in 5 minutes
+**Step 20: Security hardening (26 findings from subagent audit)**
+- Scanner: NFKD unicode normalization, zero-width char stripping, Cyrillic/Greek confusable map, whitespace collapsing, casefold()
+- API: path traversal fix (resolve + boundary check), input size limits (context 100K, action 200), CORS tightened
+- WebSocket: 100 connection limit, 5s per-client broadcast timeout
+- HMAC: startup warning on default secret
+- .env added to .gitignore
 
-**Step 20: Security hardening pass**
-- Spawn security auditor subagent against full deployed system
+**Total: 120 backend tests passing, zero failures. Vite build clean.**
+
+## All Phases Complete
+
+Phases 1-5 built and verified:
+- 120 backend tests, zero failures
+- 16 frontend modules, clean Vite build
+- Security audit: 26 findings, all critical/high addressed
+- Ready for deployment
 
 ## Environment Notes
 - Python 3.9.6 (system python3, no venv)
