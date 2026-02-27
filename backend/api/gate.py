@@ -13,6 +13,7 @@ from backend.models.gate import (
     insert_audit_entry,
 )
 from backend.audit.trail import create_audit_entry
+from backend.app.websocket import escalation_manager
 
 
 router = APIRouter()
@@ -65,4 +66,18 @@ async def gate(body: GateRequestBody):
     response["request_id"] = req.id
     response["decision_id"] = decision.id
     response["audit_id"] = audit.id
+
+    # Fire escalation event over WebSocket
+    if result.decision == "escalate":
+        await escalation_manager.broadcast({
+            "type": "escalation",
+            "request_id": req.id,
+            "decision_id": decision.id,
+            "action": body.action,
+            "reason": result.reason,
+            "blast_radius": result.blast_radius,
+            "confidence": result.confidence,
+            "session_id": body.session_id or None,
+        })
+
     return response
