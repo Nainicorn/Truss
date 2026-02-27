@@ -26,3 +26,8 @@ dist-ssr
 *.db
 *.db-shm
 *.db-wal
+
+# Secrets
+.env
+.env.*
+!.env.example

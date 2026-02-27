@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: truss
+    runtime: docker
+    plan: free
+    envVars:
+      - key: HMAC_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        value: sqlite:///data/truss.db
+      - key: PORT
+        value: "10000"
+    disk:
+      name: truss-data
+      mountPath: /app/data
+      sizeGB: 1

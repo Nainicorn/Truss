@@ -21,10 +21,10 @@ _engine = DecisionEngine()
 
 
 class GateRequestBody(BaseModel):
-    action: str
+    action: str = Field(..., max_length=200)
     params: dict = Field(default_factory=dict)
-    context: str = ""
-    session_id: str = ""
+    context: str = Field(default="", max_length=100_000)
+    session_id: str = Field(default="", max_length=64)
 
 
 @router.post("/gate")
@@ -67,7 +67,7 @@ async def gate(body: GateRequestBody):
     response["decision_id"] = decision.id
     response["audit_id"] = audit.id
 
-    # Broadcast all decisions over the live feed WS
+    # Broadcast all decisions over the live feed WS (5s per-client timeout)
     await decision_manager.broadcast({
         "type": "decision",
         "request_id": req.id,
@@ -84,7 +84,6 @@ async def gate(body: GateRequestBody):
         "layer_results": result.to_dict()["layer_results"],
     })
 
-    # Fire escalation event over dedicated escalation WS
     if result.decision == "escalate":
         await escalation_manager.broadcast({
             "type": "escalation",

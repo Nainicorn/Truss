@@ -6,7 +6,9 @@
 import { getAudit, getSessions } from '../api/client.js';
 import { createBlastBadge } from '../components/blastRadiusBadge.js';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const BASE_URL = import.meta.env.VITE_API_URL || (
+  import.meta.env.PROD ? '' : 'http://localhost:8000'
+);
 
 export function auditPage() {
   const el = document.createElement('div');

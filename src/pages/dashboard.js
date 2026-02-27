@@ -9,7 +9,9 @@ import { getAudit } from '../api/client.js';
 
 const MAX_VISIBLE = 50;
 const FADE_AFTER_MS = 30000;
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const BASE_URL = import.meta.env.VITE_API_URL || (
+  import.meta.env.PROD ? '' : 'http://localhost:8000'
+);
 
 export function dashboardPage() {
   const el = document.createElement('div');
