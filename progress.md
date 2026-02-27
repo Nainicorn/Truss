@@ -92,23 +92,56 @@
 
 **Backend tests: 120 passing, zero failures (unchanged)**
 
-## Next Up
-
-### Phase 4: Frontend
+### Phase 4: Frontend — COMPLETE (2026-02-26)
 
 **Step 14: App shell + routing**
-- Navigate between routes in browser
+- Full CSS design system per DESIGN.md: tokens, layout, components, animations
+- Syne/IBM Plex Mono/DM Sans typography, dark theme only
+- Hash-based SPA router with page lifecycle cleanup
+- App shell: sidebar nav (Dashboard, Audit Log, Demo) with WS status indicator
+- API client: fetch wrapper + WebSocket helpers
+- Vite build clean: 16 modules, 0 errors
 
 **Step 15: Dashboard — live decision feed**
-- Start demo agent, watch decisions stream via WebSocket
+- WebSocket `/ws/decisions` for real-time decision streaming (new backend endpoint)
+- Decision cards with blast radius badges (6-segment fill), injection alerts
+- Summary bar: approved/escalated/blocked count
+- Seeds feed from audit API on load, streams new decisions via WS
+- Auto-reconnect on disconnect, radar ring background motif
 
 **Step 16: Demo page — side-by-side**
-- Run both scenarios, UI shows the contrast clearly
+- Two scenarios: Email Injection, File Exfiltration
+- Left panel ("Without Truss"): all actions execute unchecked
+- Right panel ("With Truss"): calls POST /api/gate, shows block/escalate
+- Creates session per run, color-coded event feed
 
 **Step 17: Audit viewer**
-- Filter by session, click entry for layer breakdown
+- Filterable table: decision type + session dropdown
+- Click-to-expand inline detail: Layer 1/2 results, context, HMAC signature
+- Blast radius badge in table rows, pagination
+- Sessions auto-populated from API
+
+**Backend additions for frontend:**
+- `WS /ws/decisions` — broadcasts all gate decisions (not just escalations)
+- `decision_manager` singleton in websocket.py
+- Gate API broadcasts full decision payload over decisions WS
+
+**Total: 120 backend tests passing, zero failures (unchanged)**
+
+## Next Up
+
+### Phase 5: Deploy + Polish
+
+**Step 18: Deploy to Railway/Render**
+- Public URL, everything works cold
+
+**Step 19: README + demo video embed**
+- Someone unfamiliar could run this in 5 minutes
+
+**Step 20: Security hardening pass**
+- Spawn security auditor subagent against full deployed system
 
 ## Environment Notes
 - Python 3.9.6 (system python3, no venv)
 - Dependencies installed via `python3 -m pip install`
-- Vite scaffold exists for frontend (untouched so far)
+- Vite + vanilla JS frontend (no framework)
