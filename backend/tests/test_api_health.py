@@ -18,11 +18,11 @@ async def test_health_endpoint():
 
 
 @pytest.mark.asyncio
-async def test_gate_placeholder():
+async def test_gate_requires_body():
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         resp = await client.post("/api/gate")
-    assert resp.status_code == 200
+    assert resp.status_code == 422
 
 
 @pytest.mark.asyncio
