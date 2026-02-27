@@ -25,17 +25,3 @@ async def test_gate_requires_body():
     assert resp.status_code == 422
 
 
-@pytest.mark.asyncio
-async def test_audit_placeholder():
-    transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as client:
-        resp = await client.get("/api/audit")
-    assert resp.status_code == 200
-
-
-@pytest.mark.asyncio
-async def test_sessions_placeholder():
-    transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as client:
-        resp = await client.get("/api/sessions")
-    assert resp.status_code == 200

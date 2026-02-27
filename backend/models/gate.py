@@ -43,7 +43,7 @@ class Session:
 class GateRequest:
     action: str
     id: str = field(default_factory=_new_id)
-    session_id: str = ""
+    session_id: str | None = None
     params: dict = field(default_factory=dict)
     context: str = ""
     received_at: str = field(default_factory=_now)
@@ -57,7 +57,7 @@ class GateRequest:
     def from_row(cls, row: sqlite3.Row) -> "GateRequest":
         return cls(
             id=row["id"],
-            session_id=row["session_id"] or "",
+            session_id=row["session_id"],
             action=row["action"],
             params=json.loads(row["params"]) if row["params"] else {},
             context=row["context"] or "",
