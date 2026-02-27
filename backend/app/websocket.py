@@ -37,5 +37,6 @@ class EscalationManager:
             self.disconnect(ws)
 
 
-# Singleton instance
+# Singleton instances
 escalation_manager = EscalationManager()
+decision_manager = EscalationManager()  # Reuse same class — broadcasts all gate decisions

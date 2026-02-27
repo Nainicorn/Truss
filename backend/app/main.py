@@ -6,7 +6,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.app.database import get_connection, init_db
-from backend.app.websocket import escalation_manager
+from backend.app.websocket import escalation_manager, decision_manager
 from backend.api.gate import router as gate_router
 from backend.api.audit import router as audit_router
 from backend.api.sessions import router as sessions_router
@@ -53,3 +53,13 @@ async def escalation_ws(websocket: WebSocket):
             await websocket.receive_text()
     except WebSocketDisconnect:
         escalation_manager.disconnect(websocket)
+
+
+@app.websocket("/ws/decisions")
+async def decision_ws(websocket: WebSocket):
+    await decision_manager.connect(websocket)
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        decision_manager.disconnect(websocket)
