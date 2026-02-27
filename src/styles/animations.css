@@ -1,0 +1,68 @@
+/* ============================================
+   Truss — Animations
+   Keyframes and transition utilities
+   ============================================ */
+
+/* Live indicator pulse — the ONLY blinking element */
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.7; }
+}
+
+/* New decision card slide-in */
+@keyframes slide-in-top {
+  from {
+    transform: translateY(-8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* BLOCK border pulse — fires once */
+@keyframes block-pulse {
+  0% { box-shadow: inset 3px 0 0 var(--block), -4px 0 12px var(--block-glow); }
+  50% { box-shadow: inset 3px 0 0 var(--block), -4px 0 24px rgba(232, 53, 74, 0.25); }
+  100% { box-shadow: inset 3px 0 0 var(--block), -4px 0 12px var(--block-glow); }
+}
+
+/* ESCALATE fade-in */
+@keyframes escalate-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Confidence bar fill */
+@keyframes fill-bar {
+  from { width: 0; }
+}
+
+/* Page load stagger */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Transition utility classes */
+.anim-slide-in {
+  animation: slide-in-top 120ms ease-out;
+}
+
+.anim-fade-in {
+  animation: fade-in 200ms ease-out;
+}
+
+.anim-block-pulse {
+  animation: block-pulse 800ms ease-out;
+}
+
+.anim-escalate-fade {
+  animation: escalate-fade 600ms ease-out;
+}
+
+/* Stagger delays for page load */
+.stagger-1 { animation-delay: 0ms; }
+.stagger-2 { animation-delay: 80ms; animation-fill-mode: backwards; }
+.stagger-3 { animation-delay: 160ms; animation-fill-mode: backwards; }

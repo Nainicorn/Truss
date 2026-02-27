@@ -1,0 +1,176 @@
+/* ============================================
+   Truss — Base Styles
+   Design tokens, reset, body defaults
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+:root {
+  /* Base */
+  --bg-void:        #080A0E;
+  --bg-surface:     #0D1117;
+  --bg-raised:      #13181F;
+  --bg-overlay:     #1A2130;
+
+  /* Borders */
+  --border-faint:   #1E2733;
+  --border-mid:     #2A3747;
+  --border-sharp:   #3D5068;
+
+  /* Text */
+  --text-primary:   #E8EDF2;
+  --text-secondary: #7A90A8;
+  --text-dim:       #3D5068;
+  --text-mono:      #A8C0D8;
+
+  /* Decision Colors */
+  --approve:        #00C896;
+  --approve-glow:   rgba(0, 200, 150, 0.12);
+  --escalate:       #F5A623;
+  --escalate-glow:  rgba(245, 166, 35, 0.12);
+  --block:          #E8354A;
+  --block-glow:     rgba(232, 53, 74, 0.12);
+
+  /* Blast Radius Scale */
+  --blast-none:     #3D5068;
+  --blast-low:      #4A90B8;
+  --blast-medium:   #F5A623;
+  --blast-high:     #E8354A;
+  --blast-critical: #FF1A40;
+
+  /* Accent */
+  --accent-cyan:    #00D4FF;
+  --accent-cyan-dim: rgba(0, 212, 255, 0.08);
+
+  /* Typography */
+  --font-display: 'Syne', sans-serif;
+  --font-mono:    'IBM Plex Mono', monospace;
+  --font-body:    'DM Sans', sans-serif;
+
+  /* Spacing */
+  --space-xs:   4px;
+  --space-sm:   8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  40px;
+  --space-2xl: 64px;
+  --space-3xl: 96px;
+
+  /* Radius */
+  --radius-sharp: 2px;
+  --radius-soft:  6px;
+  --radius-pill: 99px;
+
+  /* Layout */
+  --sidebar-width:    220px;
+  --sidebar-collapsed: 56px;
+  --content-max-w:    1400px;
+  --panel-gutter:     24px;
+  --header-height:    48px;
+  --table-row-height: 44px;
+}
+
+/* Reset */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  color: var(--text-primary);
+  background-color: var(--bg-void);
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Noise texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* Base element styles */
+a {
+  color: var(--accent-cyan);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  font-family: var(--font-mono);
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+input, select, textarea {
+  font-family: var(--font-mono);
+  background: var(--bg-raised);
+  color: var(--text-primary);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sharp);
+  padding: var(--space-sm) var(--space-md);
+  font-size: 13px;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--border-sharp);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-void);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-mid);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-sharp);
+}
+
+/* Utility: monospace data */
+.mono {
+  font-family: var(--font-mono);
+  color: var(--text-mono);
+}
+
+/* Utility: section heading */
+.section-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
