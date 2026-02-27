@@ -72,23 +72,41 @@
 
 **Total: 120 tests passing, zero failures**
 
-## Next Up
-
-### Phase 3: Demo Agent
+### Phase 3: Demo Agent — COMPLETE (2026-02-26)
 
 **Step 11: Dangerous agent + tools**
-- `demo_agent/agent.py` — agent with dangerous tool capabilities
-- `demo_agent/tools.py` — delete_files, send_email, exec_command
-- `TRUSS_ENABLED=false` → agent executes everything unchecked
+- `demo_agent/tools.py` — 3 simulated tools (delete_files, send_email, exec_command) with `TOOL_REGISTRY` mapping to Truss actions
+- `demo_agent/agent.py` — `DemoAgent` class with `TRUSS_ENABLED` toggle, session management, scenario runner
+- `TRUSS_ENABLED=false` → agent executes every tool call unchecked
 
 **Step 12: Truss integration in agent**
-- `TRUSS_ENABLED=true` → agent routes all actions through Truss gate
-- Blocked actions abort, escalations pause for approval
+- `TRUSS_ENABLED=true` → every tool call routed through `POST /api/gate` via Python SDK
+- Blocked actions abort with reason, escalated actions pause
+- Fail-safe: if Truss server unreachable, agent aborts (never defaults to approve)
 
-**Step 13: File exfiltration scenario**
-- `demo_agent/scenarios/email_injection.py` — injection via email context
-- `demo_agent/scenarios/file_exfiltration.py` — data exfil attempt
-- Side-by-side demo: with vs without Truss
+**Step 13: Scenarios**
+- `demo_agent/scenarios/email_injection.py` — CEO spoofed email with "ignore previous instructions" injection → exfiltrates SSH key
+- `demo_agent/scenarios/file_exfiltration.py` — hidden instructions in document context → reads /etc/shadow, POSTs to attacker, covers tracks
+- Both scenarios verified: without Truss = all actions execute; with Truss = injection blocked, critical actions blocked, high/medium escalated
+- `demo_agent/CLAUDE.md` — running instructions and architecture notes
+
+**Backend tests: 120 passing, zero failures (unchanged)**
+
+## Next Up
+
+### Phase 4: Frontend
+
+**Step 14: App shell + routing**
+- Navigate between routes in browser
+
+**Step 15: Dashboard — live decision feed**
+- Start demo agent, watch decisions stream via WebSocket
+
+**Step 16: Demo page — side-by-side**
+- Run both scenarios, UI shows the contrast clearly
+
+**Step 17: Audit viewer**
+- Filter by session, click entry for layer breakdown
 
 ## Environment Notes
 - Python 3.9.6 (system python3, no venv)
