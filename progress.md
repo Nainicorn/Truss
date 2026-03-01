@@ -150,13 +150,23 @@
 
 **Total: 120 backend tests passing, zero failures. Vite build clean.**
 
-## All Phases Complete
+## Remaining Steps
 
-Phases 1-5 built and verified:
-- 120 backend tests, zero failures
-- 16 frontend modules, clean Vite build
-- Security audit: 26 findings, all critical/high addressed
-- Ready for deployment
+### Deploy to Render + custom domain
+1. Create Web Service on Render — connect GitHub repo, auto-detects `render.yaml` + Dockerfile
+2. Wait for build to finish — get `truss-xxxx.onrender.com` URL
+3. In Render → Settings → Custom Domains → add `truss.sreenaina.com`
+4. In Route 53 → Hosted zones → `sreenaina.com` → Create CNAME record: `truss` → Render target
+5. Verify: `https://truss.sreenaina.com` loads frontend + API
+
+### Test demo scenarios (after deploy)
+1. Open `https://truss.sreenaina.com` → Demo page → run both scenarios in browser
+2. CLI test against deployed backend:
+   - `python -m demo_agent.scenarios.email_injection --truss=false` (unchecked — exfiltrates)
+   - `python -m demo_agent.scenarios.email_injection --truss=true` (blocked by Truss)
+   - Note: update `truss_url` default in `demo_agent/agent.py:44` to deployed URL, or run backend locally
+3. Open Dashboard page — watch decisions stream in real time while running scenarios
+4. Open Audit Log — verify entries appear with correct blast radius and HMAC signatures
 
 ## Environment Notes
 - Python 3.9.6 (system python3, no venv)
